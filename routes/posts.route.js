@@ -39,6 +39,25 @@ router.get('/', async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
-  
+  router.get('/test', async (req, res) => {
+    const start = Date.now();
+    
+    try {
+        const results = await Post.aggregate([
+            { $group: { _id: "$authorName", userCount: { $sum: 1 } } },
+            { $project: { Name: "$_id", userCount: 1, _id: 0 } }
+        ]);
+        
+        const end = Date.now();
+        res.json({
+            message: 'Query executed successfully',
+            executionTime: `${end - start} ms`,
+            data: results
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
   
   module.exports = router;
